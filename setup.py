@@ -7,7 +7,7 @@ long_description = (Path(__file__).parent / "README.md").read_text(encoding="utf
 setup(
     name="welde",
     version="1.0.0",
-    description="Weighted Ensemble of Loss-Diverse Experts for long-tailed disorder classification",
+    description="Weighted Ensemble Loss with Diversity Enhancement for imbalanced object detection in medical imaging",
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="Farhat Masood",

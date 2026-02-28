@@ -2,9 +2,9 @@
 
 # WELDE
 
-### Weighted Ensemble of Loss-Diverse Experts
+### Weighted Ensemble Loss with Diversity Enhancement
 
-**A unified framework for long-tailed multi-class classification in medical imaging**
+**A unified framework for imbalanced object detection in medical imaging**
 
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-1.13+-ee4c2c.svg)](https://pytorch.org/)
@@ -17,7 +17,7 @@
 
 ## Overview
 
-**WELDE** addresses the pervasive **long-tailed class imbalance** problem in medical image classification, where rare but clinically significant disorders are severely under-represented. Instead of relying on a single loss function, WELDE trains a **multi-head ensemble** where each expert head is supervised by a *different* loss function — Cross-Entropy, Focal Loss, Class-Balanced Loss, and LDAM — forcing complementary specialisation across the class distribution.
+**WELDE** addresses the pervasive **long-tailed class imbalance** problem in medical image classification, where rare but clinically significant disorders are severely under-represented. Instead of relying on a single loss function, WELDE combines **four complementary loss functions** — Cross-Entropy, Focal Loss, Class-Balanced Loss, and LDAM — via per-head adapter projections, EMA-based normalisation, and learnable adaptive weighting with a relaxed sum-to-one penalty.
 
 <div align="center">
 <img src="assets/figures/fig5_tsne.png" width="70%" alt="t-SNE visualisation of learned feature embeddings">
@@ -26,10 +26,10 @@
 
 ### Key Contributions
 
-- **Loss-Diversity Ensemble** — Four expert heads, each driven by a distinct loss objective, produce naturally diverse decision boundaries without artificial diversity penalties.
-- **Lightweight Per-Head Adapters** — Learnable adapter layers allow each head to specialise on different regions of the class distribution from a shared frozen backbone.
-- **Entropy-Weighted Aggregation** — At inference, predictions are weighted inversely by their Shannon entropy, automatically up-weighting the most confident expert per sample.
-- **Exponential Moving Average (EMA)** — Stabilises training and improves generalisation with a smoothed copy of the ensemble weights.
+- **Loss-Diversity Ensemble** — Four classification heads, each supervised by a distinct loss function (CE, FL, CBL, LDAM), cover the full imbalance spectrum: stable baseline signal, hard-example focus, effective sample-size correction, and decision-margin calibration.
+- **Lightweight Per-Head Adapters** — Learnable adapter projections ($\mathbb{R}^{2048} \to \mathbb{R}^{512}$) allow each head to learn a head-specific feature subspace from a shared frozen backbone, providing implicit diversity without explicit regularisation.
+- **EMA-Based Loss Normalisation** — Exponential moving average normalisation equilibrates gradient magnitudes across loss components, preventing any single loss from dominating the combined gradient.
+- **Learnable Adaptive Weighting** — Squared-parameterised coefficients with a minimum weight floor ($\alpha = 0.01$) and a relaxed sum-to-one penalty ensure all losses contribute while allowing the framework to learn optimal weighting.
 - **Cross-Domain Generalisability** — Validated not only on spinal disorders but also on the **DermaMNIST** (skin lesion) benchmark, demonstrating broad applicability.
 
 ---
@@ -38,7 +38,7 @@
 
 ### Spinal Disorder Classification (Primary Task)
 
-6-class lumbar spine dataset derived from the RSNA 2024 Lumbar Spine Degenerative Conditions challenge. Classes exhibit severe imbalance (40:1 ratio between the most and least frequent class).
+6-class lumbar spine dataset derived from the RSNA 2024 Lumbar Spine Degenerative Conditions challenge. Classes exhibit severe imbalance (33.9:1 ratio between the most and least frequent class).
 
 | Method | mAP | mAP<sub>tail</sub> | Macro-F1 | Accuracy |
 |:---|:---:|:---:|:---:|:---:|
@@ -112,12 +112,12 @@ Cross-domain 5-fold stratified CV on the DermaMNIST benchmark (7 classes, 10,015
                └───────────────┼───────────────┘
                                │
                     ┌──────────┴───────────┐
-                    │   Entropy-Weighted   │
+                    │  Adaptive Weighted   │
                     │     Aggregation      │
                     └──────────────────────┘
 ```
 
-Each adapter is a small 2-layer MLP (`2048 → 512 → C`) with dropout, allowing per-head specialisation while keeping the backbone frozen and shared.
+Each adapter is a small projection (`2048 → 512`) with batch normalisation, GELU, and dropout, followed by a 2-layer MLP classifier (`512 → 256 → C`). At inference, head outputs are aggregated by a weighted average using the learned adaptive weights $w_j = c_j^2 + \alpha$.
 
 ---
 
@@ -302,14 +302,16 @@ Key hyperparameters (set in `welde/config.py` or overridden at runtime):
 
 | Parameter | Default | Description |
 |:---|:---:|:---|
-| `ALPHA` | 0.01 | Focal loss mixing weight |
-| `ETA` | 1.0 | Focal loss gamma |
-| `S` | 0.1 | CB loss effective number beta |
-| `LDAM_C` | 0.8 | LDAM margin scaling constant |
+| `WELDE_ALPHA` | 0.01 | Minimum weight floor (non-degeneracy guarantee) |
+| `WELDE_ETA` | 0.1 | Relaxed sum-to-one penalty coefficient |
+| `WELDE_S` | 0.1 | EMA smoothing factor |
+| `WELDE_LAMBDA` | 0.0 | Diversity regularisation weight (disabled by default) |
+| `FOCAL_GAMMA` | 2.0 | Focal Loss focusing parameter |
+| `CBL_BETA` | 0.999 | CBL effective-number hyperparameter |
+| `LDAM_C` | 0.5 | LDAM margin scaling constant |
 | `LR` | 1e-4 | Learning rate (AdamW) |
-| `EPOCHS` | 50 | Maximum training epochs |
-| `PATIENCE` | 10 | Early stopping patience (macro-F1) |
-| `BATCH_SIZE` | 128 | Batch size |
+| `NUM_EPOCHS` | 30 | Maximum training epochs |
+| `BATCH_SIZE` | 64 | Batch size |
 | `SEED` | 42 | Random seed |
 
 ---
@@ -320,7 +322,7 @@ If you find this work useful, please cite:
 
 ```bibtex
 @article{masood2025welde,
-  title={WELDE: Weighted Ensemble of Loss-Diverse Experts for Long-Tailed Disorder Classification in Lumbar Spine MRI},
+  title={{WELDE}: A Weighted Ensemble Loss with Diversity Enhancement for Imbalanced Object Detection in Medical Imaging},
   author={Masood, Farhat},
   year={2025},
   note={Under review}
