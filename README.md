@@ -20,8 +20,8 @@
 **WELDE** addresses the pervasive **long-tailed class imbalance** problem in medical image classification, where rare but clinically significant disorders are severely under-represented. Instead of relying on a single loss function, WELDE combines **four complementary loss functions** — Cross-Entropy, Focal Loss, Class-Balanced Loss, and LDAM — via per-head adapter projections, EMA-based normalisation, and learnable adaptive weighting with a relaxed sum-to-one penalty.
 
 <div align="center">
-<img src="assets/figures/fig5_tsne.png" width="70%" alt="t-SNE visualisation of learned feature embeddings">
-<br><em>Figure: t-SNE visualisation showing WELDE's improved separation of tail classes compared to baselines.</em>
+<img src="assets/figures/fig5_tsne.png" width="70%" alt="Confusion matrices and tail-class performance">
+<br><em>Figure: Row-normalised confusion matrices (CE vs WELDE) and tail-class AP / head-leakage comparison.</em>
 </div>
 
 ### Key Contributions
@@ -42,7 +42,7 @@
 
 | Method | mAP | mAP<sub>tail</sub> | Macro-F1 | Accuracy |
 |:---|:---:|:---:|:---:|:---:|
-| CE | 0.689 | 0.471 | 0.613 | 0.813 |
+| CE | 0.689 | 0.472 | 0.613 | 0.813 |
 | wCE | 0.665 | 0.448 | 0.592 | 0.744 |
 | Focal Loss | 0.673 | 0.459 | 0.626 | 0.762 |
 | CB Loss | 0.678 | 0.465 | 0.598 | 0.767 |
@@ -51,7 +51,7 @@
 | CE Ensemble | 0.693 | 0.496 | 0.689 | 0.820 |
 | **WELDE (ours)** | **0.702** | **0.509** | **0.692** | **0.822** |
 
-> WELDE achieves the **highest mAP and mAP<sub>tail</sub>**, improving tail-class performance by **+8.1%** over the best single-loss baseline (LDAM) and **+2.6%** over the architecture-matched CE Ensemble control.
+> WELDE achieves the **highest mAP and mAP<sub>tail</sub>**, improving tail-class performance by **+7.8%** over the best single-loss baseline (CE) and **+2.6%** over the architecture-matched CE Ensemble control.
 
 <div align="center">
 <img src="assets/figures/fig3_pr_curves.png" width="80%" alt="Precision-Recall Curves">
@@ -79,12 +79,12 @@
 
 Cross-domain 5-fold stratified CV on the DermaMNIST benchmark (7 classes, 10,015 images) to validate generalisability beyond spinal imaging.
 
-| Method | mAP | mAP<sub>tail</sub> |
-|:---|:---:|:---:|
-| CE | 0.636 ± 0.012 | — |
-| LDAM | 0.633 ± 0.011 | — |
-| CE Ensemble | 0.706 ± 0.018 | 0.642 ± 0.036 |
-| **WELDE (ours)** | **0.709 ± 0.015** | **0.651 ± 0.027** |
+| Method | mAP | mAP<sub>tail</sub> | Macro-F1 | Accuracy |
+|:---|:---:|:---:|:---:|:---:|
+| CE | 0.636 ± 0.012 | 0.566 ± 0.015 | 0.569 ± 0.009 | 0.789 ± 0.006 |
+| LDAM | 0.633 ± 0.011 | 0.564 ± 0.014 | 0.568 ± 0.009 | 0.788 ± 0.005 |
+| CE Ensemble | 0.706 ± 0.018 | 0.642 ± 0.036 | 0.648 ± 0.018 | 0.820 ± 0.003 |
+| **WELDE (ours)** | **0.709 ± 0.015** | **0.651 ± 0.027** | 0.647 ± 0.015 | 0.814 ± 0.004 |
 
 > WELDE generalises across imaging modalities — achieving the top mAP and substantially lower variance than CE Ensemble on DermaMNIST.
 
@@ -308,7 +308,7 @@ Key hyperparameters (set in `welde/config.py` or overridden at runtime):
 | `WELDE_LAMBDA` | 0.0 | Diversity regularisation weight (disabled by default) |
 | `FOCAL_GAMMA` | 2.0 | Focal Loss focusing parameter |
 | `CBL_BETA` | 0.999 | CBL effective-number hyperparameter |
-| `LDAM_C` | 0.5 | LDAM margin scaling constant |
+| `LDAM_C` | 0.1 | LDAM margin scaling constant |
 | `LR` | 1e-4 | Learning rate (AdamW) |
 | `NUM_EPOCHS` | 30 | Maximum training epochs |
 | `BATCH_SIZE` | 64 | Batch size |
@@ -323,7 +323,8 @@ If you find this work useful, please cite:
 ```bibtex
 @article{masood2025welde,
   title={{WELDE}: A Weighted Ensemble Loss with Diversity Enhancement for Imbalanced Object Detection in Medical Imaging},
-  author={Masood, Farhat},
+  author={Masood, Rao Farhat and Taj, Imtiaz Ahmed},
+  journal={Medical Image Analysis},
   year={2025},
   note={Under review}
 }
