@@ -20,7 +20,7 @@
 **WELDE** addresses the pervasive **long-tailed class imbalance** problem in medical image classification, where rare but clinically significant disorders are severely under-represented. Instead of relying on a single loss function, WELDE combines **four complementary loss functions** — Cross-Entropy, Focal Loss, Class-Balanced Loss, and LDAM — via per-head adapter projections, EMA-based normalisation, and learnable adaptive weighting with a relaxed sum-to-one penalty.
 
 <div align="center">
-<img src="assets/figures/fig5_tsne.png" width="70%" alt="Confusion matrices and tail-class performance">
+<img src="assets/figures/Figure_1.pdf" width="70%" alt="Confusion matrices and tail-class performance">
 <br><em>Figure: Row-normalised confusion matrices (CE vs WELDE) and tail-class AP / head-leakage comparison.</em>
 </div>
 
