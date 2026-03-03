@@ -324,8 +324,8 @@ If you find this work useful, please cite:
 @article{masood2025welde,
   title={{WELDE}: A Weighted Ensemble Loss with Diversity Enhancement for Imbalanced Object Detection in Medical Imaging},
   author={Masood, Rao Farhat and Taj, Imtiaz Ahmed},
-  journal={Medical Image Analysis},
-  year={2025},
+  journal={Under Submission},
+  year={2026},
   note={Under review}
 }
 ```
