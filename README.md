@@ -321,12 +321,15 @@ Key hyperparameters (set in `welde/config.py` or overridden at runtime):
 If you find this work useful, please cite:
 
 ```bibtex
-@article{masood2025welde,
-  title={{WELDE}: A Weighted Ensemble Loss with Diversity Enhancement for Imbalanced Object Detection in Medical Imaging},
+@article{masood2026welde,
+  title={{WELDE}: A Weighted Ensemble Loss with Diversity Enhancement for Imbalanced Object Classification in Medical Imaging},
   author={Masood, Rao Farhat and Taj, Imtiaz Ahmed},
-  journal={Under Submission},
+  journal={Network Modeling Analysis in Health Informatics and Bioinformatics},
+  volume={15},
+  pages={125},
   year={2026},
-  note={Under review}
+  doi={10.1007/s13721-026-00797-1},
+  publisher={Springer}
 }
 ```
 
